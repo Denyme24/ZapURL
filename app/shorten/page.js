@@ -1,11 +1,23 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSession, signIn, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const page = () => {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [url, seturl] = useState("");
   const [shorturl, setshorturl] = useState("");
   const [generated, setgenerated] = useState("");
+
+  useEffect(() => {
+    if (session) {
+      router.push("/shorten");
+    } else if (session === null) {
+      router.push("/login");
+    }
+  }, [session]);
 
   const generateURL = async () => {
     const res = await fetch("/api/generate", {
@@ -62,7 +74,9 @@ const page = () => {
                   Your Shorten URL
                 </p>
                 <div className="container mx-auto w-[45vw] h-[4vh] rounded-lg p-1 bg-blue-300 mt-3">
-                 <Link href={generated} target="_blank"  ><code>{generated}</code></Link> 
+                  <Link href={generated} target="_blank">
+                    <code>{generated}</code>
+                  </Link>
                 </div>
               </div>
             </>
