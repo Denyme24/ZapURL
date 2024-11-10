@@ -103,10 +103,10 @@ const Navbar = () => {
                   >
                     <li className="cursor-pointer">
                       <Link
-                        href={"/dashboard"}
+                        href={"/shorten"}
                         className="block md:px-4 md:py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white md:w-full text-xs md:text-lg text-black"
                       >
-                        Dashboard
+                        Shorten
                       </Link>
                     </li>
                     <div className="line h-[1px] opacity-10 bg-white"></div>

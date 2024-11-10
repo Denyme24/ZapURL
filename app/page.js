@@ -12,11 +12,13 @@ export default function Home() {
   const { data: session } = useSession();
   useEffect(() => {
     if (session) {
-      setSession("/dashboard");
+      setSession("/shorten");
     } else if (session === null) {
       setSession("/login");
     }
   }, [session]);
+
+
 
   return (
     <>

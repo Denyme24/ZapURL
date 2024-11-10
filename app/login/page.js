@@ -1,21 +1,55 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+
 const Login = () => {
   const { data: session } = useSession();
   const [Loader, setLoader] = useState(false);
+  const [apiResponse, setApiResponse] = useState(null);
+
   const router = useRouter();
-  if (session) {
-    router.push("/");
-  } else if (session === null) {
-    router.push("/login");
-  }
+  useEffect(() => {
+    if (session) {
+      router.push("/shorten");
+    } else if (session === null) {
+      router.push("/login");
+    }
+  }, [session, router]);
+
+  useEffect(() => {
+    if (session) {
+      sendDatatoAPI();
+    }
+  }, [session]);
+
   const handleSignIn = async (provider) => {
     setLoader(true);
     await signIn(provider);
     setLoader(false);
   };
+
+  const sendDatatoAPI = async () => {
+    try {
+      const res = await fetch("/api/userdata", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: session.user.email,
+          name: session.user.name,
+        }),
+      });
+      const response = await res.json();
+      setApiResponse(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  // for testing purpose
+  console.log(apiResponse);
+
   return (
     <>
       <div className="container mx-auto">
@@ -29,12 +63,12 @@ const Login = () => {
                 <button
                   disabled
                   type="button"
-                  class="text-black z-[1000] bg-blue-300 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex justify-center items-center me-2 mb-2 w-64"
+                  className="text-black z-[1000] bg-blue-300 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex justify-center items-center me-2 mb-2 w-64"
                 >
                   <svg
                     aria-hidden="true"
                     role="status"
-                    class="inline w-4 h-4 me-3 text-white animate-spin"
+                    className="inline w-4 h-4 me-3 text-white animate-spin"
                     viewBox="0 0 100 101"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
