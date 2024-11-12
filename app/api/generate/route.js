@@ -23,3 +23,14 @@ export async function POST(request) {
     return NextResponse.error(error);
   }
 }
+
+export async function GET(request) {
+  await connectDB();
+  try {
+    const urls = await Url.find({});
+    return NextResponse.json(urls);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.error(error);
+  }
+}

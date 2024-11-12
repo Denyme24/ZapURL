@@ -18,8 +18,6 @@ export default function Home() {
     }
   }, [session]);
 
-
-
   return (
     <>
       <div className="layout">
