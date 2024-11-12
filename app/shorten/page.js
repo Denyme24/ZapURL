@@ -14,6 +14,7 @@ const page = () => {
   const [generated, setgenerated] = useState("");
   const [show, setshow] = useState(false);
   const [urlshow, seturlshow] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (session) {
@@ -22,8 +23,16 @@ const page = () => {
       router.push("/login");
     }
   }, [session]);
-
+  const validateURL = (url) => {
+    const regex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+    return regex.test(url);
+  };
   const generateURL = async () => {
+    if (!validateURL(url)) {
+      setError("Please enter a valid URL.");
+      return;
+    }
+    setError("");
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: {
@@ -76,6 +85,7 @@ const page = () => {
               }}
               value={shorturl}
             />
+            {error && <p className="text-red-500">{error}</p>}
             {url.length === 0 || shorturl.length === 0 ? (
               <button
                 type="button"
@@ -100,11 +110,11 @@ const page = () => {
           </div>
           {generated && (
             <>
-              <div className="copyurl mt-4 flex flex-col items-center gap-2">
+              <div className="copyurl mt-2 flex flex-col items-center gap-2">
                 <p className="text-center pt-2 font-semibold text-l">
                   Your Shorten URL
                 </p>
-                <div className="container mx-auto w-[45vw] h-[4vh] rounded-lg p-1 bg-blue-300 mt-3">
+                <div className="container mx-auto w-[45vw] h-[4vh] rounded-lg p-1 bg-blue-300">
                   <Link href={generated} target="_blank">
                     <code>{generated}</code>
                   </Link>
