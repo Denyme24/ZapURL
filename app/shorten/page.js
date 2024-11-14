@@ -4,6 +4,13 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Copy from "@/assets/copy.svg";
+import Script from "next/script";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Bounce } from "react-toastify";
+import { set } from "mongoose";
 
 const page = () => {
   const router = useRouter();
@@ -15,6 +22,8 @@ const page = () => {
   const [show, setshow] = useState(false);
   const [urlshow, seturlshow] = useState(false);
   const [error, setError] = useState("");
+  const [toggleBtn, settoggleBtn] = useState(false);
+  const [responseError, setresponseError] = useState("");
 
   useEffect(() => {
     if (session) {
@@ -41,10 +50,14 @@ const page = () => {
       body: JSON.stringify({ url: url, shortUrl: shorturl }),
     });
     const data = await res.json();
-
-    seturl("");
-    setshorturl("");
-    setgenerated(`${process.env.NEXT_PUBLIC_HOST}/${data.shortUrl}`);
+    if (!res.ok) {
+      setresponseError(data.message);
+    } else {
+      seturl("");
+      setshorturl("");
+      setgenerated(`${process.env.NEXT_PUBLIC_HOST}/${data.shortUrl}`);
+      setresponseError("");
+    }
   };
 
   const showAllURLs = async () => {
@@ -59,8 +72,74 @@ const page = () => {
     setallUrl(data);
   };
 
+  const copyText = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied!", {
+      position: "bottom-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: 0,
+      theme: "colored",
+      transition: Bounce,
+    });
+  };
+
+  const editURL = async (URL, shortURL) => {
+    settoggleBtn(true);
+    seturl(URL);
+    setshorturl(shortURL);
+  };
+
+  const editURLData = async () => {
+    const res = await fetch("/api/updateurl", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ shortUrl: shorturl, url: url }),
+    });
+
+    if (!res.ok) {
+      // Handle error
+      console.error("Failed to update URL");
+    } else {
+      // Handle success
+      console.log("URL updated successfully");
+    }
+    setgenerated(`${process.env.NEXT_PUBLIC_HOST}/${shorturl}`);
+    seturl("");
+    setshorturl("");
+    toast.success("Updated!", {
+      position: "bottom-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: 0,
+      theme: "colored",
+      transition: Bounce,
+    });
+  };
+
   return (
     <>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={true}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+      <ToastContainer />
       <div className="flex items-center justify-center h-[80vh]">
         <div className=" h-[60vh] w-[70vw]  ">
           <p className="text-center pt-2 font-semibold text-l">
@@ -85,14 +164,20 @@ const page = () => {
               }}
               value={shorturl}
             />
+
             {error && <p className="text-red-500">{error}</p>}
-            {url.length === 0 || shorturl.length === 0 ? (
+            {responseError && <p className="text-red-500">{responseError}</p>}
+            {toggleBtn ? (
               <button
                 type="button"
-                className=" text-white py-2.5 px-5 me-2 mb-2 text-sm font-medium  focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100  focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-400 dark:bg-gray-600 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-500 cursor-not-allowed "
-                disabled
+                className={`text-white py-2.5 px-5 me-2 mb-2 text-sm font-medium  focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100  focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700  ${
+                  shorturl.length === 0 ? "cursor-not-allowed" : ""
+                } `}
+                onClick={() => {
+                  editURLData(), settoggleBtn(false);
+                }}
               >
-                Generate
+                Edit
               </button>
             ) : (
               <>
@@ -101,7 +186,11 @@ const page = () => {
                     generateURL(), setshow(true);
                   }}
                   type="button"
-                  className=" text-white py-2.5 px-5 me-2 mb-2 text-sm font-medium  focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100  focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                  className={`text-white py-2.5 px-5 me-2 mb-2 text-sm font-medium  focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100  focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700  ${
+                    url.length === 0 || shorturl.length === 0
+                      ? "cursor-not-allowed"
+                      : ""
+                  } `}
                 >
                   Generate
                 </button>
@@ -114,8 +203,8 @@ const page = () => {
                 <p className="text-center pt-2 font-semibold text-l">
                   Your Shorten URL
                 </p>
-                <div className="container mx-auto w-[45vw] h-[4vh] rounded-lg p-1 bg-blue-300">
-                  <Link href={generated} target="_blank">
+                <div className="container mx-auto w-[45vw] h-[4vh] rounded-lg p-1 bg-blue-300 text-center">
+                  <Link href={generated} target="_blank ">
                     <code>{generated}</code>
                   </Link>
                 </div>
@@ -139,13 +228,47 @@ const page = () => {
                       {allUrl.map((url) => (
                         <div
                           key={url._id}
-                          className="container mx-auto w-[45vw] h-[4vh] rounded-lg p-1 bg-blue-300 mt-3"
+                          className="container mx-auto w-[45vw] h-[4vh] rounded-lg p-1 bg-blue-300 mt-3 flex justify-around items-center"
                         >
                           <Link href={url.shortUrl} target="_blank">
                             <code>
                               {process.env.NEXT_PUBLIC_HOST}/{url.shortUrl}
                             </code>
                           </Link>
+                          <button
+                            className="copy-btn"
+                            onClick={() => {
+                              copyText(
+                                `${process.env.NEXT_PUBLIC_HOST}/${url.shortUrl}`
+                              );
+                            }}
+                          >
+                            <Image
+                              src={Copy}
+                              alt="copy"
+                              height={20}
+                              width={20}
+                            />
+                          </button>
+                          <div className="edit cursor-pointer">
+                            <Script src="https://cdn.lordicon.com/lordicon.js"></Script>
+                            <lord-icon
+                              src="https://cdn.lordicon.com/wuvorxbv.json"
+                              trigger="click"
+                              style={{ width: "20px", height: "20px" }}
+                              onClick={() =>
+                                editURL(url.originalUrl, url.shortUrl)
+                              }
+                            ></lord-icon>
+                          </div>
+                          <div className="delete cursor-pointer">
+                            <Script src="https://cdn.lordicon.com/lordicon.js"></Script>
+                            <lord-icon
+                              src="https://cdn.lordicon.com/drxwpfop.json"
+                              trigger="click"
+                              style={{ width: "20px", height: "20px" }}
+                            ></lord-icon>
+                          </div>
                         </div>
                       ))}
                     </div>
