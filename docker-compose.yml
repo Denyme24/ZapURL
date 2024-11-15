@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/shorten-url
+      - NODE_ENV=production
+    depends_on:
+      - mongo
+    restart: always
+    networks:
+      - zap-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+    networks:
+      - zap-network
+
+volumes:
+  mongo-data:
+
+networks:
+  zap-network:
+    driver: bridge

@@ -9,25 +9,6 @@ const Login = () => {
   const [apiResponse, setApiResponse] = useState(null);
 
   const router = useRouter();
-  useEffect(() => {
-    if (session) {
-      router.push("/shorten");
-    } else if (session === null) {
-      router.push("/login");
-    }
-  }, [session, router]);
-
-  useEffect(() => {
-    if (session) {
-      sendDatatoAPI();
-    }
-  }, [session]);
-
-  const handleSignIn = async (provider) => {
-    setLoader(true);
-    await signIn(provider);
-    setLoader(false);
-  };
 
   const sendDatatoAPI = async () => {
     try {
@@ -47,8 +28,26 @@ const Login = () => {
       console.log(e);
     }
   };
-  
- 
+
+  useEffect(() => {
+    if (session) {
+      router.push("/shorten");
+    } else if (session === null) {
+      router.push("/login");
+    }
+  }, [session, router]);
+
+  useEffect(() => {
+    if (session) {
+      sendDatatoAPI();
+    }
+  }, [session]);
+
+  const handleSignIn = async (provider) => {
+    setLoader(true);
+    await signIn(provider);
+    setLoader(false);
+  };
 
   return (
     <>

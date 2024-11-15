@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
+import Image from "next/image";
 
 const Navbar = () => {
   const router = useRouter();
@@ -29,7 +30,7 @@ const Navbar = () => {
 
           <li>
             <a href="https://github.com/Denyme24">
-              <img
+              <Image
                 src="https://th.bing.com/th/id/OIP.UCmvnA7TLNJq3mad-AXpRQHaHa?rs=1&pid=ImgDetMain"
                 alt=""
                 height={30}
@@ -39,7 +40,7 @@ const Navbar = () => {
           </li>
           <li>
             <a href="https://www.linkedin.com/in/naman-raj24/">
-              <img
+              <Image
                 src="https://cdn.pixabay.com/photo/2017/08/22/11/56/linked-in-2668700_1280.png"
                 alt=""
                 height={50}
@@ -63,7 +64,7 @@ const Navbar = () => {
                   type="button"
                 >
                   <div className="flex justify-center items-center gap-2">
-                    <img
+                    <Image
                       src={session.user.image}
                       alt="image"
                       height={25}

@@ -11,7 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Bounce } from "react-toastify";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const [url, seturl] = useState("");
@@ -23,6 +23,7 @@ const page = () => {
   const [error, setError] = useState("");
   const [toggleBtn, settoggleBtn] = useState(false);
   const [responseError, setresponseError] = useState("");
+  const [enable, setenable] = useState(false);
 
   useEffect(() => {
     if (session) {
@@ -41,6 +42,7 @@ const page = () => {
       return;
     }
     setError("");
+    setenable(true);
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: {
@@ -144,6 +146,7 @@ const page = () => {
     }
     setallUrl(allUrl.filter((url) => url.originalUrl !== originalURL));
     setgenerated("e.g. https://shorten.com/abc123");
+    setenable(false);
 
     toast.warn("Deleted!", {
       position: "bottom-right",
@@ -236,10 +239,21 @@ const page = () => {
                 <p className="text-center pt-2 font-semibold text-l">
                   Your Shorten URL
                 </p>
-                <div className="container mx-auto w-[45vw] h-[4vh] rounded-lg p-1 bg-blue-300 text-center">
-                  <Link href={generated} target="_blank ">
-                    <code>{generated}</code>
-                  </Link>
+
+                <div className="container mx-auto w-[45vw] h-[4vh] rounded-lg p-1 bg-blue-300 text-center ">
+                  {enable ? (
+                    <Link
+                      href={generated}
+                      target="_blank"
+                      className="cursor-pointer"
+                    >
+                      <code>{generated}</code>
+                    </Link>
+                  ) : (
+                    <span className="cursor-not-allowed">
+                      <code>{generated}</code>
+                    </span>
+                  )}
                 </div>
                 <button
                   onClick={() => {
@@ -319,4 +333,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
