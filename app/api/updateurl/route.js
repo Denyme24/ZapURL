@@ -11,7 +11,7 @@ export async function PUT(request) {
       { shortUrl: shortUrl },
       { new: true }
     );
-    console.log("Updated URL is: " + updateUrl);
+ 
     return NextResponse.json(updateUrl);
   } catch (error) {
     console.log(error);
@@ -34,7 +34,7 @@ export async function DELETE(request) {
   try {
     const { shortUrl } = await request.json();
     const deleteUrl = await Url.findOneAndDelete({ shortUrl });
-    console.log("Deleted URL is: " + deleteUrl);
+   
     return NextResponse.json(deleteUrl);
   } catch (error) {
     console.log(error);

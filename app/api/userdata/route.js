@@ -5,8 +5,8 @@ export async function POST(request) {
   await connectDB();
   try {
     const { email, name } = await request.json();
-    console.log("Email : " + email, "Name : " + name);
-    console.log("Data received");
+
+   
     let userCredentials = await AuthUsers.create({
       email: email,
       name: name,

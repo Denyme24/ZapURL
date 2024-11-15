@@ -47,8 +47,8 @@ const Login = () => {
       console.log(e);
     }
   };
-  // for testing purpose
-  console.log(apiResponse);
+  
+ 
 
   return (
     <>

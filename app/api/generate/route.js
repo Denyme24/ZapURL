@@ -6,7 +6,7 @@ export async function POST(request) {
   await connectDB();
   try {
     const { url, shortUrl } = await request.json();
-    console.log("URL : " + url, "Short URL : " + shortUrl);
+    
     // check if the short url and original URL already exists
     const doc = await Url.findOne({ shortUrl: shortUrl });
     const doc2 = await Url.findOne({ originalUrl: url });
