@@ -10,7 +10,6 @@ import Script from "next/script";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Bounce } from "react-toastify";
-import { set } from "mongoose";
 
 const page = () => {
   const router = useRouter();
@@ -18,8 +17,8 @@ const page = () => {
   const [url, seturl] = useState("");
   const [allUrl, setallUrl] = useState([]);
   const [shorturl, setshorturl] = useState("");
-  const [generated, setgenerated] = useState("");
-  const [show, setshow] = useState(false);
+  const [generated, setgenerated] = useState("e.g. https://shorten.com/abc123");
+  const [show, setshow] = useState(true);
   const [urlshow, seturlshow] = useState(false);
   const [error, setError] = useState("");
   const [toggleBtn, settoggleBtn] = useState(false);
@@ -103,16 +102,50 @@ const page = () => {
     });
 
     if (!res.ok) {
-      // Handle error
       console.error("Failed to update URL");
     } else {
-      // Handle success
       console.log("URL updated successfully");
     }
     setgenerated(`${process.env.NEXT_PUBLIC_HOST}/${shorturl}`);
     seturl("");
     setshorturl("");
+    setallUrl(
+      allUrl.filter((url) => {
+        return url.shortUrl !== shorturl;
+      })
+    );
+
     toast.success("Updated!", {
+      position: "bottom-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: 0,
+      theme: "colored",
+      transition: Bounce,
+    });
+  };
+
+  const deleteURL = async (originalURL, shortURL) => {
+    const res = await fetch("/api/updateurl", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ shortUrl: shortURL }),
+    });
+
+    if (!res.ok) {
+      console.error("Failed to delete URL");
+    } else {
+      console.log("URL deleted successfully");
+    }
+    setallUrl(allUrl.filter((url) => url.originalUrl !== originalURL));
+    setgenerated("e.g. https://shorten.com/abc123");
+
+    toast.warn("Deleted!", {
       position: "bottom-right",
       autoClose: 1000,
       hideProgressBar: false,
@@ -183,7 +216,7 @@ const page = () => {
               <>
                 <button
                   onClick={() => {
-                    generateURL(), setshow(true);
+                    generateURL();
                   }}
                   type="button"
                   className={`text-white py-2.5 px-5 me-2 mb-2 text-sm font-medium  focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100  focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700  ${
@@ -219,7 +252,7 @@ const page = () => {
                   type="button"
                   className=" text-white py-2.5 px-5 me-2 mb-2 text-sm font-medium  focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100  focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
                 >
-                  {show ? "Show All URLs" : "Hide All URLs"}
+                  {show ? "Show all URLs" : "Hide all URLs"}
                 </button>
 
                 {urlshow ? (
@@ -264,6 +297,9 @@ const page = () => {
                           <div className="delete cursor-pointer">
                             <Script src="https://cdn.lordicon.com/lordicon.js"></Script>
                             <lord-icon
+                              onClick={() =>
+                                deleteURL(url.originalUrl, url.shortUrl)
+                              }
                               src="https://cdn.lordicon.com/drxwpfop.json"
                               trigger="click"
                               style={{ width: "20px", height: "20px" }}

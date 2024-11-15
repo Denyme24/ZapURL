@@ -7,8 +7,8 @@ export async function PUT(request) {
   try {
     const { shortUrl, url } = await request.json();
     const updateUrl = await Url.findOneAndUpdate(
-        { originalUrl: url },
-        { shortUrl: shortUrl },
+      { originalUrl: url },
+      { shortUrl: shortUrl },
       { new: true }
     );
     console.log("Updated URL is: " + updateUrl);
@@ -26,5 +26,18 @@ export async function GET(request) {
   } catch (error) {
     console.log(error);
     return NextResponse.error({ message: "Error fetching URLs" });
+  }
+}
+
+export async function DELETE(request) {
+  await connectDB();
+  try {
+    const { shortUrl } = await request.json();
+    const deleteUrl = await Url.findOneAndDelete({ shortUrl });
+    console.log("Deleted URL is: " + deleteUrl);
+    return NextResponse.json(deleteUrl);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.error({ message: "Error deleting URL" });
   }
 }
