@@ -69,7 +69,7 @@ Ensure you have the following installed:
 1. **Pull Docker Image**:
 
    ```bash
-   docker pull denyme24/zap_url
+   docker pull denyme24/zap_url:latest
    ```
 
 2. **Clone the Repository**:
